@@ -7,22 +7,18 @@ using UnityEditor;
 public class Level : MonoBehaviour
 {
     public bool square;
+    public int dimension;
 
-    [HideInInspector]
-    public int numRows;
-    [HideInInspector]
-    public int numColumns;
+    public static int Dimension;
+    public static int NumWalls;
 
-    public int squareDimension;
     public float cellDistance;
+
+    public static Cell[,] cells;
+    public static Wall[,] walls;
 
     GameObject cellPrefab;
     GameObject wallPrefab;
-    
-    [HideInInspector]
-    public static Cell[,] cells;
-    [HideInInspector]
-    public static Wall[,] walls;
 
     Vector2 firstCellPosition;
     GameObject cellHolderObj;
@@ -47,19 +43,22 @@ public class Level : MonoBehaviour
             return;
         }
 
+        Dimension = dimension;
+        NumWalls = 2 * dimension * (dimension - 1);
+
         cellPrefab = Resources.Load<GameObject>("Prefabs/Cell");
 
         cellHolderObj = new GameObject("Cells");
 
         cellHolderObj.transform.SetParent(transform);
-        cells = new Cell[squareDimension, squareDimension];
+        cells = new Cell[Dimension, Dimension];
 
-        float offSetFromCenter = (squareDimension - 0.9999f) / 2 * cellDistance;
+        float offSetFromCenter = (Dimension - 0.9999f) / 2 * cellDistance;
         firstCellPosition = new Vector2(-offSetFromCenter, -offSetFromCenter);
 
-        for(int j = 0; j < squareDimension; j++)
+        for(int j = 0; j < Dimension; j++)
         {
-            for(int i = 0; i < squareDimension; i++)
+            for(int i = 0; i < Dimension; i++)
             {
                 cells[j, i] = CreateCell(j, i, cellDistance);
             }
@@ -101,20 +100,20 @@ public class Level : MonoBehaviour
             DestroyImmediate(interiorWallHolderObj);
         }
 
-        walls = new Wall[squareDimension, 2 * squareDimension - 1];
-        WallIndexing.squareDimension = squareDimension;
+        walls = new Wall[Dimension, 2 * Dimension - 1];
+        WallIndexing.squareDimension = Dimension;
 
         wallPrefab = Resources.Load<GameObject>("Prefabs/Wall");
 
         interiorWallHolderObj = new GameObject("InteriorWalls");
         interiorWallHolderObj.transform.SetParent(transform);
 
-        for(int i = 0; i < squareDimension; i++)
+        for(int i = 0; i < Dimension; i++)
         {
             BuildWallColumn(i, false, true);
         }
 
-        for(int j = 0; j < squareDimension; j++)
+        for(int j = 0; j < Dimension; j++)
         {
             BuildWallRow(j, false, true);
         }
@@ -138,12 +137,12 @@ public class Level : MonoBehaviour
         exteriorWallHolderObj = new GameObject("ExteriorWalls");
         exteriorWallHolderObj.transform.SetParent(transform);
 
-        for (int i = 0; i < squareDimension; i++)
+        for (int i = 0; i < Dimension; i++)
         {
             BuildWallColumn(i, true, false);
         }
 
-        for (int j = 0; j < squareDimension; j++)
+        for (int j = 0; j < Dimension; j++)
         {
             BuildWallRow(j, true, false);
         }
@@ -156,7 +155,7 @@ public class Level : MonoBehaviour
 
         if (interior)
         {
-            for (int i = 0; i < squareDimension - 1; i++)
+            for (int i = 0; i < Dimension - 1; i++)
             {
                 WallIndexes wallIndexes = WallIndexing.IndexesOfWallInBetween(j, i, j, i + 1);
                 walls[wallIndexes.row, wallIndexes.col] = BuildWall(cells[j, i].transform.position + offset, true, interiorWallHolderObj);
@@ -166,7 +165,7 @@ public class Level : MonoBehaviour
         if (exterior)
         {
             BuildWall(cells[j, 0].transform.position - offset, true, exteriorWallHolderObj);
-            BuildWall(cells[j, squareDimension - 1].transform.position + offset, true, exteriorWallHolderObj);
+            BuildWall(cells[j, Dimension - 1].transform.position + offset, true, exteriorWallHolderObj);
         }
     }
 
@@ -177,7 +176,7 @@ public class Level : MonoBehaviour
 
         if (interior)
         {
-            for (int j = 0; j < squareDimension - 1; j++)
+            for (int j = 0; j < Dimension - 1; j++)
             {
                 WallIndexes wallIndexes = WallIndexing.IndexesOfWallInBetween(j, i, j + 1, i);
                 walls[wallIndexes.row, wallIndexes.col] = BuildWall(cells[j, i].transform.position + offset, false, interiorWallHolderObj);
@@ -187,7 +186,7 @@ public class Level : MonoBehaviour
         if (exterior)
         {
             BuildWall(cells[0, i].transform.position - offset, false, exteriorWallHolderObj);
-            BuildWall(cells[squareDimension - 1, i].transform.position + offset, false, exteriorWallHolderObj);
+            BuildWall(cells[Dimension - 1, i].transform.position + offset, false, exteriorWallHolderObj);
         }
     }
 
@@ -222,9 +221,9 @@ public class Level : MonoBehaviour
             return;
         }
 
-        for (int j = 0; j < squareDimension; j++)
+        for (int j = 0; j < Dimension; j++)
         {
-            for (int i = 0; i < squareDimension; i++)
+            for (int i = 0; i < Dimension; i++)
             {
                 cells[j, i].Type = DeriveCellType(j, i);
             }
@@ -245,22 +244,22 @@ public class Level : MonoBehaviour
             type = CellType.PostEnter;
         }
 
-        else if (i + j == squareDimension - 1 && i * j == 0)
+        else if (i + j == Dimension - 1 && i * j == 0)
         {
             type = CellType.Loot;
         }
 
-        else if (i + j == (squareDimension - 1) * 2 - 1)
+        else if (i + j == (Dimension - 1) * 2 - 1)
         {
             type = CellType.PreBoss;
         }
 
-        else if (i + j == (squareDimension - 1) * 2)
+        else if (i + j == (Dimension - 1) * 2)
         {
             type = CellType.Boss;
         }
 
-        else if (i + j == squareDimension - 1)
+        else if (i + j == Dimension - 1)
         {
             if (Random.value < 0.5f)
             {
@@ -272,7 +271,7 @@ public class Level : MonoBehaviour
             }
         }
 
-        else if (i + j < squareDimension - 1)
+        else if (i + j < Dimension - 1)
         {
             type = CellType.Easy;
         }

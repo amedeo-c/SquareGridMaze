@@ -6,173 +6,135 @@ using System.Linq;
 
 public class MapExploring : MonoBehaviour
 {
-    int mapDimension;
-
-    public Wall[,] walls;
-    public Cell[,] cells;
+    public int numWallsToOpen;
 
     int openWalls;
-
-    void Traverse()
-    {
-        int row = 0;
-        int col = 0;
-
-        //cells[0, 0].Marked = true;
-
-        while(!(row == mapDimension-1 && col == mapDimension - 1))
-        {
-            if(row == mapDimension - 1)
-            {
-                ChangeCell(row, col, row, col + 1);
-                col++;
-            }
-            else if(col == mapDimension - 1)
-            {
-                ChangeCell(row, col, row + 1, col);
-                row++;
-            }
-            else
-            {
-                if(Random.value < 0.5f)
-                {
-                    ChangeCell(row, col, row, col + 1);
-                    col++;
-                }
-                else
-                {
-                    ChangeCell(row, col, row + 1, col);
-                    row++;
-                }
-            }
-        }
-
-        cells[mapDimension - 1, mapDimension - 1].Marked = true;
-    }
-
-    void LootTraverse()
-    {
-        // from upper left to lower right
-        int row = mapDimension - 1;
-        int col = 0;
-
-        while(!cells[row, col].Marked)
-        {
-            if(row == 0)
-            {
-                ChangeCell(row, col, row, col + 1);
-                col++;
-            }
-            else if(col == mapDimension - 1)
-            {
-                ChangeCell(row, col, row-1, col);
-                row--;
-            }
-            else
-            {
-                if(Random.value < 0.5f)
-                {
-                    ChangeCell(row, col, row, col + 1);
-                    col++;
-                }
-                else
-                {
-                    ChangeCell(row, col, row - 1, col);
-                    row--;
-                }
-            }
-        }
-
-        // from lower right to upper left
-        row = 0;
-        col = mapDimension - 1;
-
-        while(!cells[row, col].Marked)
-        {
-            if(row == mapDimension - 1)
-            {
-                ChangeCell(row, col, row, col - 1);
-                col--;
-            }
-            else if(col == 0)
-            {
-                ChangeCell(row, col, row + 1, col);
-                row++;
-            }
-            else
-            {
-                if(Random.value < 0.5f)
-                {
-                    ChangeCell(row, col, row, col - 1);
-                    col--;
-                }
-                else
-                {
-                    ChangeCell(row, col, row + 1, col);
-                    row++;
-                }
-            }
-        }
-    }
 
     public void TraverseMethod()
     {
         Prepare();
 
-        Traverse();
-        OpenEnterWalls();
-        LootTraverse();
+        TraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
+        TraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
+        TraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
 
-        Debug.Log("open walls: " + openWalls.ToString());
+        OpenMandatoryWalls();
+
+        Debug.Assert(openWalls <= numWallsToOpen);
+
+        if (openWalls < numWallsToOpen)
+        {
+            OpenRemainingWalls();
+        }
+
+        Debug.Assert(openWalls == numWallsToOpen);
+    }
+
+    void TraverseFromTo(int sourceRow, int sourceCol, int targetRow, int targetCol)
+    {
+        int verticalDirection = (int)Mathf.Sign(targetRow - sourceRow);
+        int horizontalDirection = (int)Mathf.Sign(targetCol - sourceCol);
+
+        int currentRow = sourceRow;
+        int currentCol = sourceCol;
+
+        while (!(currentRow == targetRow && currentCol == targetCol) && !Level.cells[currentRow, currentCol].Marked)
+        {
+            if (currentRow == targetRow)
+            {
+                ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection);
+                currentCol += horizontalDirection;
+            }
+            else if (currentCol == targetCol)
+            {
+                ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol);
+                currentRow += verticalDirection;
+            }
+            else
+            {
+                if (Random.value < 0.5f)
+                {
+                    ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection);
+                    currentCol += horizontalDirection;
+                }
+                else
+                {
+                    ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol);
+                    currentRow += verticalDirection;
+                }
+            }
+        }
+
+        Level.cells[currentRow, currentCol].Marked = true;
     }
 
     void ChangeCell(int currentRow, int currentCol, int nextRow, int nextCol)
     {
         WallIndexes wallIndexes = WallIndexing.IndexesOfWallInBetween(currentRow, currentCol, nextRow, nextCol);
-        Wall wallInBetween = walls[wallIndexes.row, wallIndexes.col];
+        Wall wallInBetween = Level.walls[wallIndexes.row, wallIndexes.col];
 
         wallInBetween.Open = true;
         openWalls++;
 
-        cells[currentRow, currentCol].Marked = true;
+        Level.cells[currentRow, currentCol].Marked = true;
     }
 
-    void OpenEnterWalls()
+    void OpenMandatoryWalls()
     {
         WallIndexes wallIndexes;
 
         wallIndexes = WallIndexing.IndexesOfWallInBetween(0, 0, 0, 1);
-        if(!walls[wallIndexes.row, wallIndexes.col].Open)
+        if(!Level.walls[wallIndexes.row, wallIndexes.col].Open)
         {
-            walls[wallIndexes.row, wallIndexes.col].Open = true;
+            Level.walls[wallIndexes.row, wallIndexes.col].Open = true;
             openWalls++;
         }
 
         wallIndexes = WallIndexing.IndexesOfWallInBetween(0, 0, 1, 0);
-        if (!walls[wallIndexes.row, wallIndexes.col].Open)
+        if (!Level.walls[wallIndexes.row, wallIndexes.col].Open)
         {
-            walls[wallIndexes.row, wallIndexes.col].Open = true;
+            Level.walls[wallIndexes.row, wallIndexes.col].Open = true;
             openWalls++;
         }
 
-        wallIndexes = WallIndexing.IndexesOfWallInBetween(mapDimension-1, mapDimension-1, mapDimension-1, mapDimension-2);
-        if (!walls[wallIndexes.row, wallIndexes.col].Open)
+        wallIndexes = WallIndexing.IndexesOfWallInBetween(Level.Dimension-1, Level.Dimension-1, Level.Dimension-1, Level.Dimension-2);
+        if (!Level.walls[wallIndexes.row, wallIndexes.col].Open)
         {
-            walls[wallIndexes.row, wallIndexes.col].Open = true;
+            Level.walls[wallIndexes.row, wallIndexes.col].Open = true;
             openWalls++;
         }
 
-        wallIndexes = WallIndexing.IndexesOfWallInBetween(mapDimension-1, mapDimension-1, mapDimension-2, mapDimension-1);
-        if (!walls[wallIndexes.row, wallIndexes.col].Open)
+        wallIndexes = WallIndexing.IndexesOfWallInBetween(Level.Dimension-1, Level.Dimension-1, Level.Dimension-2, Level.Dimension-1);
+        if (!Level.walls[wallIndexes.row, wallIndexes.col].Open)
         {
-            walls[wallIndexes.row, wallIndexes.col].Open = true;
+            Level.walls[wallIndexes.row, wallIndexes.col].Open = true;
             openWalls++;
+        }
+    }
+
+    void OpenRemainingWalls()
+    {
+        List<Wall> closedWalls = new List<Wall>();
+        foreach(Wall w in Level.walls)
+        {
+            if (w != null && !w.Open)
+            {
+                closedWalls.Add(w);
+            }
+        }
+
+        while(openWalls < numWallsToOpen && openWalls < Level.NumWalls)
+        {
+            Wall randomClosedWall = closedWalls[Random.Range(0, closedWalls.Count)];
+            randomClosedWall.Open = true;
+            openWalls++;
+            closedWalls.Remove(randomClosedWall);
         }
     }
 
     void CloseAllWalls()
     {
-        foreach (Wall w in walls)
+        foreach (Wall w in Level.walls)
         {
             if (w != null)
             {
@@ -185,26 +147,14 @@ public class MapExploring : MonoBehaviour
 
     void DemarkAllCells()
     {
-        foreach (Cell c in cells)
+        foreach (Cell c in Level.cells)
         {
             c.Marked = false;
         }
     }
 
-    void FindLevel()
-    {
-        Level l = FindObjectOfType<Level>();
-
-        Debug.Assert(l != null);
-
-        walls = l.walls;
-        cells = l.cells;
-        mapDimension = l.squareDimension;
-    }
-
     void Prepare()
     {
-        FindLevel();
         DemarkAllCells();
         CloseAllWalls();
     }

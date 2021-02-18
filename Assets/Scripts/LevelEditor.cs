@@ -16,9 +16,7 @@ public class LevelEditor : Editor
     private void OnEnable()
     {
         square = serializedObject.FindProperty("square");
-        dimension = serializedObject.FindProperty("squareDimension");
-        numRows = serializedObject.FindProperty("numRows");
-        numColumns = serializedObject.FindProperty("numColumns");
+        dimension = serializedObject.FindProperty("dimension");
         cellDistance = serializedObject.FindProperty("cellDistance");
     }
 
