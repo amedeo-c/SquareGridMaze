@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33d086d40f7747f4d8c6b0ae934aa313, type: 3}
+  m_Name: BaseColorSetup
+  m_EditorClassIdentifier: 
+  cellColors:
+  - {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 1}
+  - {r: 0, g: 0.28340352, b: 0.6037736, a: 1}
+  - {r: 0, g: 0.69776326, b: 0.7924528, a: 1}
+  - {r: 0, g: 0.6415094, b: 0.10518356, a: 1}
+  - {r: 0.8301887, g: 0.7631935, b: 0, a: 1}
+  - {r: 0.7169812, g: 0, b: 0, a: 1}
+  - {r: 0.7735849, g: 0, b: 0.654588, a: 1}
+  - {r: 0.41851124, g: 0, b: 0.6226415, a: 1}
+  openWallColor: {r: 1, g: 1, b: 1, a: 1}
+  closedWallColor: {r: 0, g: 0, b: 0, a: 1}
