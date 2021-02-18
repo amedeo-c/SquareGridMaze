@@ -8,15 +8,77 @@ public class MapExploring : MonoBehaviour
 {
     public int numWallsToOpen;
 
+    public int maxTries;
+
     int openWalls;
 
-    public void TraverseMethod()
+    Cell currentCell;
+    Cell previousCell;
+
+    public void RandomTraverseMethod()
+    {
+        int tries = 0;
+
+        do
+        {
+            Prepare();
+
+            RandomTraverseFromTo(Level.EnterCell, Level.BossCell, true, false);
+            RandomTraverseFromTo(Level.UpperLootCell, Level.LowerLootCell, false, true);
+            RandomTraverseFromTo(Level.LowerLootCell, Level.UpperLootCell, false, true);
+
+            OpenMandatoryWalls();
+
+            tries++;
+
+        } while (openWalls > numWallsToOpen && tries < maxTries); // the control on the number of open walls can be done while traversing..
+
+        if(openWalls < numWallsToOpen)
+        {
+            OpenRemainingWalls();
+        }
+
+        Debug.Log(openWalls);
+    }
+
+    void RandomTraverseFromTo(Cell sourceCell, Cell targetCell, bool markCells, bool stopOnMarked)
+    {
+        currentCell = sourceCell;
+        previousCell = sourceCell;
+
+        while(currentCell != targetCell)
+        {
+            var availableCells = currentCell.AdjacentCells();
+            availableCells.Remove(previousCell);
+
+            if(availableCells.Count > 0)
+            {
+                Cell nextCell = availableCells[Random.Range(0, availableCells.Count)];
+                ChangeCell(nextCell, markCells);
+
+                if (stopOnMarked && currentCell.Marked)
+                {
+                    break;
+                }
+
+            }
+            else
+            {
+                Debug.Log("dead end");
+                break;
+            }
+        }
+
+        currentCell.Marked = true;
+    }
+
+    public void DirectTraverseMethod()
     {
         Prepare();
 
-        TraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
-        TraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
-        TraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
+        DirectTraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
+        DirectTraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
+        DirectTraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
 
         OpenMandatoryWalls();
 
@@ -30,7 +92,7 @@ public class MapExploring : MonoBehaviour
         Debug.Assert(openWalls == numWallsToOpen);
     }
 
-    void TraverseFromTo(int sourceRow, int sourceCol, int targetRow, int targetCol)
+    void DirectTraverseFromTo(int sourceRow, int sourceCol, int targetRow, int targetCol)
     {
         int verticalDirection = (int)Mathf.Sign(targetRow - sourceRow);
         int horizontalDirection = (int)Mathf.Sign(targetCol - sourceCol);
@@ -66,6 +128,24 @@ public class MapExploring : MonoBehaviour
         }
 
         Level.cells[currentRow, currentCol].Marked = true;
+    }
+
+    void ChangeCell(Cell nextCell, bool mark)
+    {
+        Wall wallInBetween = WallIndexing.WallInBetween(currentCell, nextCell);
+
+        if (!wallInBetween.Open)
+        {
+            wallInBetween.Open = true;
+            openWalls++;
+        }
+        previousCell = currentCell;
+        currentCell = nextCell;
+
+        if (mark)
+        {
+            previousCell.Marked = true;
+        }
     }
 
     void ChangeCell(int currentRow, int currentCol, int nextRow, int nextCol)

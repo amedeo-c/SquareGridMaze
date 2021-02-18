@@ -45,6 +45,30 @@ public static class WallIndexing
             return new WallIndexes(wallRow, wallCol);
         }
     }
+
+    public static Wall WallInBetween(int rowA, int colA, int rowB, int colB)
+    {
+        if(Level.walls == null)
+        {
+            Debug.Log("level walls not present");
+            return null;
+        }
+
+        WallIndexes indexes = IndexesOfWallInBetween(rowA, colA, rowB, colB);
+        return Level.walls[indexes.row, indexes.col];
+    }
+
+    public static Wall WallInBetween(Cell cellA, Cell cellB)
+    {
+        if (Level.walls == null)
+        {
+            Debug.Log("level walls not present");
+            return null;
+        }
+
+        WallIndexes indexes = IndexesOfWallInBetween(cellA.Row, cellA.Col, cellB.Row, cellB.Col);
+        return Level.walls[indexes.row, indexes.col];
+    }
 }
 
 public class WallIndexes

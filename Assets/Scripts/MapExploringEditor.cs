@@ -11,10 +11,16 @@ public class MapExploringEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if(GUILayout.Button("traverse method"))
+        if(GUILayout.Button("direct traverse method"))
         {
             MapExploring m = target as MapExploring;
-            m.TraverseMethod();
+            m.DirectTraverseMethod();
+        }
+
+        if(GUILayout.Button("random traverse method"))
+        {
+            MapExploring m = target as MapExploring;
+            m.RandomTraverseMethod();
         }
     }
 }

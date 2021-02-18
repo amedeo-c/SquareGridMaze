@@ -25,6 +25,38 @@ public class Level : MonoBehaviour
     GameObject interiorWallHolderObj;
     GameObject exteriorWallHolderObj;
 
+    public static Cell EnterCell
+    {
+        get
+        {
+            return cells[Dimension - 1, Dimension - 1];
+        }
+    }
+
+    public static Cell BossCell
+    {
+        get
+        {
+            return cells[0, 0];
+        }
+    }
+
+    public static Cell UpperLootCell
+    {
+        get
+        {
+            return cells[Dimension - 1, 0];
+        }
+    }
+
+    public static Cell LowerLootCell
+    {
+        get
+        {
+            return cells[0, Dimension - 1];
+        }
+    }
+
 #if UNITY_EDITOR
 
     #region CellBuilding
@@ -202,7 +234,7 @@ public class Level : MonoBehaviour
         newWallObj.transform.SetParent(parent.transform);
 
         Wall newWall = newWallObj.GetComponent<Wall>();
-        newWall.Close();
+        newWall.Open = false;
 
         PrefabUtility.RecordPrefabInstancePropertyModifications(newWall);
 
@@ -210,6 +242,17 @@ public class Level : MonoBehaviour
     }
 
     #endregion
+
+    void SetConnections()
+    {
+        for(int row = 0; row < Dimension; row++)
+        {
+            for(int col = 0; col < Dimension; col++)
+            {
+
+            }
+        }
+    }
 
 #endif
 

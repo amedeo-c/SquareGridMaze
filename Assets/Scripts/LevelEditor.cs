@@ -54,6 +54,15 @@ public class LevelEditor : Editor
             l.DestroyExteriorWalls();
         }
 
+        if(GUILayout.Button("build all"))
+        {
+            Level l = target as Level;
+            l.CreateSquareGrid();
+            l.BuildExteriorWalls();
+            l.BuildInteriorWalls();
+            l.AssignCellTypes();
+        }
+
         if (GUILayout.Button("build grid"))
         {
             serializedObject.ApplyModifiedProperties();
