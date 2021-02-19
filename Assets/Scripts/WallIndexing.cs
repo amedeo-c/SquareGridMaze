@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.Linq;
+
 public static class WallIndexing
 {
     public static int squareDimension;
@@ -10,6 +12,7 @@ public static class WallIndexing
     {
         Debug.Assert(rowA == rowB ^ colA == colB);
         Debug.Assert(Mathf.Abs(rowA - rowB) + Mathf.Abs(colA - colB) == 1);
+        // we assume positive values for all of the 4 indexes
 
         if (Mathf.Abs(rowA - rowB) + Mathf.Abs(colA - colB) != 1)
         {

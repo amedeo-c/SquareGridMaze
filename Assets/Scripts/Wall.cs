@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.Threading.Tasks;
+
 public class Wall : MonoBehaviour
 {
     Cell cellA;
     Cell cellB;
 
     bool open;
+
+    Animation openAnimation;
 
     public bool Open
     {
@@ -24,6 +28,24 @@ public class Wall : MonoBehaviour
 
             open = value;
             GetComponent<SpriteRenderer>().color = LevelColors.GetWallColor(open);
+        }
+    }
+
+    public async Task OpenWithAnimation()
+    {
+        if (!open)
+        {
+            if(openAnimation == null)
+            {
+                openAnimation = GetComponent<Animation>();
+            }
+
+            openAnimation.Play();
+
+            while (openAnimation.isPlaying)
+            {
+                await Task.Yield();
+            }
         }
     }
 }

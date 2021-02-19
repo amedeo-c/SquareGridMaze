@@ -18,7 +18,7 @@ public class Cell : MonoBehaviour
         set
         {
             type = value;
-            GetComponent<SpriteRenderer>().color = LevelColors.GetCellColor(type);
+            //GetComponent<SpriteRenderer>().color = LevelColors.GetCellColor(type);
         }
     }
 

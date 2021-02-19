@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System.Linq;
+using System.Threading.Tasks;
 
 public class MapExploring : MonoBehaviour
 {
@@ -10,12 +11,14 @@ public class MapExploring : MonoBehaviour
 
     public int maxTries;
 
+    public float waitDuration;
+
     int openWalls;
 
     Cell currentCell;
     Cell previousCell;
 
-    public void RandomTraverseMethod()
+    public async void RandomTraverseMethod()
     {
         int tries = 0;
 
@@ -23,9 +26,9 @@ public class MapExploring : MonoBehaviour
         {
             Prepare();
 
-            RandomTraverseFromTo(Level.EnterCell, Level.BossCell, true, false);
-            RandomTraverseFromTo(Level.UpperLootCell, Level.LowerLootCell, false, true);
-            RandomTraverseFromTo(Level.LowerLootCell, Level.UpperLootCell, false, true);
+            await RandomTraverseFromTo(Level.EnterCell, Level.BossCell, true, false);
+            await RandomTraverseFromTo(Level.UpperLootCell, Level.LowerLootCell, false, true);
+            await RandomTraverseFromTo(Level.LowerLootCell, Level.UpperLootCell, false, true);
 
             OpenMandatoryWalls();
 
@@ -38,15 +41,16 @@ public class MapExploring : MonoBehaviour
             OpenRemainingWalls();
         }
 
-        Debug.Log(openWalls);
+        Debug.Assert(openWalls == numWallsToOpen);
     }
 
-    void RandomTraverseFromTo(Cell sourceCell, Cell targetCell, bool markCells, bool stopOnMarked)
+    // traverse the grid at each step choosing a random cell among the adjacent one but for the previous one (no going back)
+    async Task RandomTraverseFromTo(Cell sourceCell, Cell targetCell, bool markCells, bool stopOnMarked)
     {
         currentCell = sourceCell;
         previousCell = sourceCell;
 
-        while(currentCell != targetCell)
+        while(currentCell != targetCell && openWalls < numWallsToOpen)
         {
             var availableCells = currentCell.AdjacentCells();
             availableCells.Remove(previousCell);
@@ -61,6 +65,7 @@ public class MapExploring : MonoBehaviour
                     break;
                 }
 
+                await Task.Delay((int)(waitDuration * 1000f));
             }
             else
             {
@@ -72,13 +77,13 @@ public class MapExploring : MonoBehaviour
         currentCell.Marked = true;
     }
 
-    public void DirectTraverseMethod()
+    public async void DirectTraverseMethod()
     {
         Prepare();
 
-        DirectTraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
-        DirectTraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
-        DirectTraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
+        await DirectTraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
+        await DirectTraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
+        await DirectTraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
 
         OpenMandatoryWalls();
 
@@ -92,7 +97,11 @@ public class MapExploring : MonoBehaviour
         Debug.Assert(openWalls == numWallsToOpen);
     }
 
-    void DirectTraverseFromTo(int sourceRow, int sourceCol, int targetRow, int targetCol)
+    // traverse the grid usign only two kind of moves (the two depending on the direction of the target cell with respect to the source cell).
+    // also, here the adjactent cells and in between walls are referenced only using indexes in their respective grid and not the more graph-like
+    // description seen for the random treverse case. still, it is only a matter of verbosity since the methods for deriving adjacencies are the
+    // exact same.
+    async Task DirectTraverseFromTo(int sourceRow, int sourceCol, int targetRow, int targetCol)
     {
         int verticalDirection = (int)Mathf.Sign(targetRow - sourceRow);
         int horizontalDirection = (int)Mathf.Sign(targetCol - sourceCol);
@@ -125,6 +134,8 @@ public class MapExploring : MonoBehaviour
                     currentRow += verticalDirection;
                 }
             }
+
+            await Task.Delay((int)(waitDuration * 1000f));
         }
 
         Level.cells[currentRow, currentCol].Marked = true;
