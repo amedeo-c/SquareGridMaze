@@ -6,15 +6,17 @@ using System.Threading.Tasks;
 
 public class LevelBuilder : MonoBehaviour
 {
-    public int dimension;
+    public int dimension; // defines a dimension x dimension grid
 
-    public float cellDistance;
+    public float cellDistance; // distance between cell centers
     public float cellScale;
 
+    // time interval between generation steps
     public float waitDuration;
 
     Vector2 firstCellPosition;
 
+    // used as parents in the hierarchy (for cleaning purposes)
     GameObject cellHolderObj;
     GameObject interiorWallHolderObj;
     GameObject exteriorWallHolderObj;
@@ -26,6 +28,8 @@ public class LevelBuilder : MonoBehaviour
 
     #region CellBuilding
 
+    // given a dimension, builds a square grid of cells (centered in the middle of the screen)
+    // the type/variant of each cell is chosen and set in the BuildCell() function
     public async Task BuildSquareGrid()
     {
         if (cells != null || cellHolderObj != null)
@@ -56,10 +60,12 @@ public class LevelBuilder : MonoBehaviour
         Level.Dimension = dimension;
     }
 
+    // a random prefab of the necessary type (based on the row and columnn indexes) is instantiated.
+    // then, its Cell component is set up.
     public Cell BuildCell(int row, int column, float distance)
     {
         CellType type = DeriveCellType(row, column);
-        GameObject cellPrefab = prefabLoader.GetRandomPrefab(type);
+        GameObject cellPrefab = prefabLoader.GetRandomCellPrefab(type);
 
         GameObject newCellObj = Instantiate(cellPrefab);
 
@@ -80,6 +86,8 @@ public class LevelBuilder : MonoBehaviour
     #endregion
 
     #region WallBuilding
+    // for indexing easiness, creation of vertical walls and horizontal walls is separated.
+    // moreover, in practice we also separate the creation of interior and exterior walls, but this is not a system requirement.
 
     public async Task BuildInteriorWalls()
     {
@@ -94,7 +102,7 @@ public class LevelBuilder : MonoBehaviour
             DestroyImmediate(interiorWallHolderObj);
         }
 
-        interiorWalls = new Wall[dimension, 2 * dimension - 1];
+        interiorWalls = new Wall[dimension, 2 * dimension - 1]; // see WallIndexing class
         WallIndexing.squareDimension = dimension;
 
         interiorWallHolderObj = new GameObject("InteriorWalls");
@@ -212,6 +220,11 @@ public class LevelBuilder : MonoBehaviour
 
     public async Task BuildAll()
     {
+        if(cells != null)
+        {
+            DestroyAll();
+        }
+
         await BuildSquareGrid();
         await BuildExteriorWalls();
         await BuildInteriorWalls();
@@ -234,6 +247,7 @@ public class LevelBuilder : MonoBehaviour
     //    }
     //}
 
+    // we assume a strict cell type scheme -> the type can be derived based only on the cell position.
     private CellType DeriveCellType(int j, int i)
     {
         CellType type;
@@ -290,16 +304,6 @@ public class LevelBuilder : MonoBehaviour
 
     #region Clearing
 
-    public void DestroyAllCells()
-    {
-        foreach (Cell c in FindObjectsOfType<Cell>())
-        {
-            DestroyImmediate(c.gameObject);
-        }
-
-        cells = null;
-    }
-
     public void DestroyCellGrid()
     {
         DestroyImmediate(cellHolderObj);
@@ -320,6 +324,13 @@ public class LevelBuilder : MonoBehaviour
         DestroyImmediate(exteriorWallHolderObj);
 
         exteriorWallHolderObj = null;
+    }
+
+    public void DestroyAll()
+    {
+        DestroyCellGrid();
+        DestroyExteriorWalls();
+        DestroyInteriorWalls();
     }
 
     #endregion

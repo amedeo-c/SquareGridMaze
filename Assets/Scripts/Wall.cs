@@ -11,7 +11,9 @@ public class Wall : MonoBehaviour
 
     bool open;
 
-    Animation openAnimation;
+    public static bool deactivateOnOpen;
+
+    //Animation openAnimation;
 
     public bool Open
     {
@@ -21,31 +23,38 @@ public class Wall : MonoBehaviour
         }
         set
         {
-            if(open != value)
+            if (deactivateOnOpen)
             {
-                transform.Rotate(Vector3.forward, 90.0f);
+                gameObject.SetActive(!value);
+            }
+            else
+            {
+                if (open != value)
+                {
+                    transform.Rotate(Vector3.forward, 90.0f);
+                }
+                GetComponent<SpriteRenderer>().color = LevelColors.GetWallColor(value);
             }
 
             open = value;
-            GetComponent<SpriteRenderer>().color = LevelColors.GetWallColor(open);
         }
     }
 
-    public async Task OpenWithAnimation()
-    {
-        if (!open)
-        {
-            if(openAnimation == null)
-            {
-                openAnimation = GetComponent<Animation>();
-            }
+    //public async Task OpenWithAnimation()
+    //{
+    //    if (!open)
+    //    {
+    //        if(openAnimation == null)
+    //        {
+    //            openAnimation = GetComponent<Animation>();
+    //        }
 
-            openAnimation.Play();
+    //        openAnimation.Play();
 
-            while (openAnimation.isPlaying)
-            {
-                await Task.Yield();
-            }
-        }
-    }
+    //        while (openAnimation.isPlaying)
+    //        {
+    //            await Task.Yield();
+    //        }
+    //    }
+    //}
 }

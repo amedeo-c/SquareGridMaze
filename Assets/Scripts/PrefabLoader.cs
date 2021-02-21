@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System.IO;
+using System.Linq;
 
 public class PrefabLoader : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class PrefabLoader : MonoBehaviour
 
     GameObject wallPrefab;
 
+    // for both cells and walls prefabs, we load all the necessary resources once and for all and then 
+
+    // we assume that for each cell type there exists a resources folder containing all the possible type variants
     void LoadCellPrefabs()
     {
         cellPrefabs = new List<GameObject[]>();
@@ -23,10 +27,12 @@ public class PrefabLoader : MonoBehaviour
 
         foreach(string n in cellTypeNames)
         {
-            //string resourcesPath = Path.Combine(cellsFolderPath, n);
             string resourcesPath = cellsFolderPath + "/" + n + "/";
 
             GameObject[] typePrefabs = Resources.LoadAll<GameObject>(resourcesPath);
+
+            Debug.Assert(typePrefabs.All(item => item.GetComponent<Cell>() != null));
+
             cellPrefabs.Add(typePrefabs);
         }
     }
@@ -36,9 +42,10 @@ public class PrefabLoader : MonoBehaviour
         string resourcePath = wallsFolderPath + "/Wall";
         wallPrefab = Resources.Load<GameObject>(resourcePath);
         Debug.Assert(wallPrefab != null);
+        Debug.Assert(wallPrefab.GetComponent<Wall>() != null);
     }
 
-    public GameObject GetRandomPrefab(CellType type)
+    public GameObject GetRandomCellPrefab(CellType type)
     {
         if(cellPrefabs == null || alwaysReload)
         {
@@ -57,17 +64,5 @@ public class PrefabLoader : MonoBehaviour
         }
 
         return wallPrefab;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

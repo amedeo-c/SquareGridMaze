@@ -9,39 +9,61 @@ public class MapExploring : MonoBehaviour
 {
     public int numWallsToOpen;
 
-    public int maxTries;
+    public bool isolatedPathsAllowed; // ...
+
+    public bool deactivateOpenWalls;
 
     public float waitDuration;
+
+    public TraverseMode traverseMode;
+
+    [HideInInspector]
+    public int maxTries; // for the random traverse method, which is not guaranteed to successfully generate a level satisfying the requirements.
 
     int openWalls;
 
     Cell currentCell;
     Cell previousCell;
 
-    public async void RandomTraverseMethod()
+    public async Task RandomTraverseMethod()
     {
-        int tries = 0;
+        bool ready = Prepare();
 
-        do
+        if (ready)
         {
-            Prepare();
+            int tries = 0;
 
-            await RandomTraverseFromTo(Level.EnterCell, Level.BossCell, true, false);
-            await RandomTraverseFromTo(Level.UpperLootCell, Level.LowerLootCell, false, true);
-            await RandomTraverseFromTo(Level.LowerLootCell, Level.UpperLootCell, false, true);
+            do
+            {
+                Prepare();
 
-            OpenMandatoryWalls();
+                await RandomTraverseFromTo(Level.EnterCell, Level.BossCell, true, false);
+                // after the first traverse, for successive traverse we stop at marked cells, that is cells that are path of the first traverse path.
+                // for this reason, we should not mark cells during successive traverses otherwise could stop before reaching the first traverse path.
+                // this happens since for the random method loops for the same path are allowed, while in the case of direct traverse this problem does not arise.
+                await RandomTraverseFromTo(Level.UpperLootCell, Level.LowerLootCell, false, true);
+                await RandomTraverseFromTo(Level.LowerLootCell, Level.UpperLootCell, false, true);
 
-            tries++;
+                OpenMandatoryWalls();
 
-        } while (openWalls > numWallsToOpen && tries < maxTries); // the control on the number of open walls can be done while traversing..
+                tries++;
 
-        if(openWalls < numWallsToOpen)
-        {
-            OpenRemainingWalls();
+            } while (openWalls > numWallsToOpen && tries < maxTries); // the control on the number of open walls can be done while traversing..
+
+            if (openWalls < numWallsToOpen)
+            {
+                if (isolatedPathsAllowed)
+                {
+                    await OpenRemainingWalls();
+                }
+                else
+                {
+                    await OpenRemainingWalls2();
+                }
+            }
+
+            Debug.Assert(openWalls == numWallsToOpen);
         }
-
-        Debug.Assert(openWalls == numWallsToOpen);
     }
 
     // traverse the grid at each step choosing a random cell among the adjacent one but for the previous one (no going back)
@@ -60,7 +82,7 @@ public class MapExploring : MonoBehaviour
                 Cell nextCell = availableCells[Random.Range(0, availableCells.Count)];
                 ChangeCell(nextCell, markCells);
 
-                if (stopOnMarked && currentCell.Marked)
+                if ((stopOnMarked && currentCell.Marked) || openWalls >= numWallsToOpen)
                 {
                     break;
                 }
@@ -77,24 +99,34 @@ public class MapExploring : MonoBehaviour
         currentCell.Marked = true;
     }
 
-    public async void DirectTraverseMethod()
+    public async Task DirectTraverseMethod()
     {
-        Prepare();
+        bool ready = Prepare();
 
-        await DirectTraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
-        await DirectTraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
-        await DirectTraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
-
-        OpenMandatoryWalls();
-
-        Debug.Assert(openWalls <= numWallsToOpen);
-
-        if (openWalls < numWallsToOpen)
+        if (ready)
         {
-            OpenRemainingWalls();
-        }
+            await DirectTraverseFromTo(0, 0, Level.Dimension - 1, Level.Dimension - 1);
+            await DirectTraverseFromTo(0, Level.Dimension - 1, Level.Dimension - 1, 0);
+            await DirectTraverseFromTo(Level.Dimension - 1, 0, 0, Level.Dimension - 1);
 
-        Debug.Assert(openWalls == numWallsToOpen);
+            OpenMandatoryWalls();
+
+            Debug.Assert(openWalls <= numWallsToOpen);
+
+            if (openWalls < numWallsToOpen)
+            {
+                if (isolatedPathsAllowed)
+                {
+                    await OpenRemainingWalls();
+                }
+                else
+                {
+                    await OpenRemainingWalls2();
+                }
+            }
+
+            Debug.Assert(openWalls == numWallsToOpen);
+        }
     }
 
     // traverse the grid usign only two kind of moves (the two depending on the direction of the target cell with respect to the source cell).
@@ -113,24 +145,24 @@ public class MapExploring : MonoBehaviour
         {
             if (currentRow == targetRow)
             {
-                ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection);
+                ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection, true);
                 currentCol += horizontalDirection;
             }
             else if (currentCol == targetCol)
             {
-                ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol);
+                ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol, true);
                 currentRow += verticalDirection;
             }
             else
             {
                 if (Random.value < 0.5f)
                 {
-                    ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection);
+                    ChangeCell(currentRow, currentCol, currentRow, currentCol + horizontalDirection, true);
                     currentCol += horizontalDirection;
                 }
                 else
                 {
-                    ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol);
+                    ChangeCell(currentRow, currentCol, currentRow + verticalDirection, currentCol, true);
                     currentRow += verticalDirection;
                 }
             }
@@ -141,6 +173,8 @@ public class MapExploring : MonoBehaviour
         Level.cells[currentRow, currentCol].Marked = true;
     }
 
+    // one step move
+    // also opens the wall/door separating the two cells
     void ChangeCell(Cell nextCell, bool mark)
     {
         Wall wallInBetween = WallIndexing.WallInBetween(currentCell, nextCell);
@@ -159,7 +193,9 @@ public class MapExploring : MonoBehaviour
         }
     }
 
-    void ChangeCell(int currentRow, int currentCol, int nextRow, int nextCol)
+    // same as above but with direct cell indexing
+    // since we use use function only in the case of direct traversing, we do not need to store data regarding the previous cell
+    void ChangeCell(int currentRow, int currentCol, int nextRow, int nextCol, bool mark)
     {
         WallIndexes wallIndexes = WallIndexing.IndexesOfWallInBetween(currentRow, currentCol, nextRow, nextCol);
         Wall wallInBetween = Level.walls[wallIndexes.row, wallIndexes.col];
@@ -167,7 +203,10 @@ public class MapExploring : MonoBehaviour
         wallInBetween.Open = true;
         openWalls++;
 
-        Level.cells[currentRow, currentCol].Marked = true;
+        if (mark)
+        {
+            Level.cells[currentRow, currentCol].Marked = true;
+        }
     }
 
     void OpenMandatoryWalls()
@@ -203,10 +242,12 @@ public class MapExploring : MonoBehaviour
         }
     }
 
-    void OpenRemainingWalls()
+    // leftover walls to be opened are chosen at random among remaining closed walls
+    // this allows to open "isolated walls", that is unreachable doors.
+    async Task OpenRemainingWalls()
     {
         List<Wall> closedWalls = new List<Wall>();
-        foreach(Wall w in Level.walls)
+        foreach (Wall w in Level.walls)
         {
             if (w != null && !w.Open)
             {
@@ -214,12 +255,35 @@ public class MapExploring : MonoBehaviour
             }
         }
 
-        while(openWalls < numWallsToOpen && openWalls < Level.NumWalls)
+        while (openWalls < numWallsToOpen && openWalls < Level.NumWalls)
         {
             Wall randomClosedWall = closedWalls[Random.Range(0, closedWalls.Count)];
             randomClosedWall.Open = true;
             openWalls++;
             closedWalls.Remove(randomClosedWall);
+            await Task.Delay((int)(waitDuration * 1000));
+        }
+    }
+
+    // leftover walls to be opened are opened using random traverses starting from marked cells
+    // 
+    async Task OpenRemainingWalls2()
+    {
+        List<Cell> markedCells = new List<Cell>();
+        foreach(Cell c in Level.cells)
+        {
+            if (c.Marked)
+            {
+                markedCells.Add(c);
+            }
+        }
+
+        while(openWalls < numWallsToOpen)
+        {
+            Cell startingCell = markedCells[Random.Range(0, markedCells.Count)];
+            Cell targetCell = Level.cells[Random.Range(0, Level.Dimension), Random.Range(0, Level.Dimension)];
+
+            await RandomTraverseFromTo(startingCell, targetCell, false, false);
         }
     }
 
@@ -244,21 +308,46 @@ public class MapExploring : MonoBehaviour
         }
     }
 
-    void Prepare()
+    bool Prepare()
     {
+        if(Level.cells == null || Level.walls == null)
+        {
+            Debug.Log("no valid grid present");
+            return false;
+        }
+
+        Wall.deactivateOnOpen = deactivateOpenWalls;
         DemarkAllCells();
         CloseAllWalls();
+
+        return true;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void Clear()
     {
-
+        Prepare();
     }
 
-    // Update is called once per frame
-    void Update()
+    public async Task Traverse()
     {
-        
+        switch (traverseMode)
+        {
+            case TraverseMode.Direct:
+
+                await DirectTraverseMethod();
+                break;
+
+            case TraverseMode.Random:
+
+                await RandomTraverseMethod();
+                break;
+        }
     }
+
+}
+
+public enum TraverseMode
+{
+    Direct,
+    Random
 }

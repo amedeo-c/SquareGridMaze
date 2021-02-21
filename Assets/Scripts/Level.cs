@@ -12,6 +12,8 @@ public class Level : MonoBehaviour
     public static Cell[,] cells;
     public static Wall[,] walls;
 
+    // because of the assumed strict cell type scheme, "special" cells position is fixed and known a priori.
+
     public static Cell EnterCell
     {
         get
@@ -45,17 +47,16 @@ public class Level : MonoBehaviour
         }
     }
 
-
-
-    // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
+        LevelBuilder builder = GetComponent<LevelBuilder>();
+        MapExploring explorer = GetComponent<MapExploring>();
+        Debug.Assert(builder != null && explorer != null);
 
-    }
+        builder.waitDuration = 0f;
+        builder.BuildAll();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        explorer.waitDuration = 0f;
+        explorer.Traverse();
     }
 }
