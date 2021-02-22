@@ -7,9 +7,13 @@ using System.Linq;
 
 public class PrefabLoader : MonoBehaviour
 {
+    [Tooltip("relative path of the resource folder containing cell prefebs subfolders")]
     public string cellsFolderPath = "Prefabs/CellPrefabs";
+
+    [Tooltip("relative path of the resource folder containing wall prefab")]
     public string wallsFolderPath = "Prefabs/WallPrefabs";
 
+    [Tooltip("useful in edit mode to apply eventual changes")]
     public bool alwaysReload;
 
     List<GameObject[]> cellPrefabs;
