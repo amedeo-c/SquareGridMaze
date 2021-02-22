@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 public class Wall : MonoBehaviour
 {
-    Cell cellA;
-    Cell cellB;
-
     bool open;
 
     public static bool deactivateOnOpen;
@@ -39,22 +36,4 @@ public class Wall : MonoBehaviour
             open = value;
         }
     }
-
-    //public async Task OpenWithAnimation()
-    //{
-    //    if (!open)
-    //    {
-    //        if(openAnimation == null)
-    //        {
-    //            openAnimation = GetComponent<Animation>();
-    //        }
-
-    //        openAnimation.Play();
-
-    //        while (openAnimation.isPlaying)
-    //        {
-    //            await Task.Yield();
-    //        }
-    //    }
-    //}
 }

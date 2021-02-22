@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 
 public class LevelBuilder : MonoBehaviour
 {
-    public int dimension; // defines a dimension x dimension grid
+    [Tooltip("defines a dimension x dimension grid")]
+    public int dimension;
 
-    public float cellDistance; // distance between cell centers
+    [Tooltip("distance between centers of adjacent cells")]
+    public float cellDistance;
+
+    [Tooltip("scaling of instantiated cell GameObjects")]
     public float cellScale;
 
-    // time interval between generation steps
+    [Tooltip("time interval between generation steps")]
     public float waitDuration;
 
     Vector2 firstCellPosition;
@@ -89,7 +93,7 @@ public class LevelBuilder : MonoBehaviour
     // for indexing easiness, creation of vertical walls and horizontal walls is separated.
     // moreover, in practice we also separate the creation of interior and exterior walls, but this is not a system requirement.
 
-    public async Task BuildInteriorWalls()
+    public async Task BuildWalls(bool interior, bool exterior)
     {
         if (cellHolderObj == null || cells == null)
         {
@@ -97,60 +101,47 @@ public class LevelBuilder : MonoBehaviour
             return;
         }
 
-        if (interiorWallHolderObj != null)
+        if (interior)
         {
-            DestroyImmediate(interiorWallHolderObj);
+            if(interiorWallHolderObj != null)
+            {
+                DestroyImmediate(interiorWallHolderObj);
+            }
+
+            interiorWallHolderObj = new GameObject("InteriorWalls");
+            interiorWallHolderObj.transform.SetParent(transform);
+
+            interiorWalls = new Wall[dimension, 2 * dimension - 1]; // see WallIndexing class
+            WallIndexing.squareDimension = dimension;
+
+            Level.walls = interiorWalls;
+            Level.NumWalls = 2 * dimension * (dimension - 1);
         }
 
-        interiorWalls = new Wall[dimension, 2 * dimension - 1]; // see WallIndexing class
-        WallIndexing.squareDimension = dimension;
+        if(exterior)
+        {
+            if(exteriorWallHolderObj != null)
+            {
+                DestroyImmediate(exteriorWallHolderObj);
+            }
 
-        interiorWallHolderObj = new GameObject("InteriorWalls");
-        interiorWallHolderObj.transform.SetParent(transform);
+            exteriorWallHolderObj = new GameObject("ExteriorWalls");
+            exteriorWallHolderObj.transform.SetParent(transform);
+        }
 
         for (int i = 0; i < dimension; i++)
         {
-            await BuildWallColumn(i, false, true);
+            await BuildWallColumn(i, interior, exterior);
         }
 
         for (int j = 0; j < dimension; j++)
         {
-            await BuildWallRow(j, false, true);
-        }
-
-        Level.walls = interiorWalls;
-        Level.NumWalls = 2 * dimension * (dimension - 1);
-    }
-
-    public async Task BuildExteriorWalls()
-    {
-        if (cellHolderObj == null || cells == null)
-        {
-            Debug.Log("no valid grid present");
-            return;
-        }
-
-        if (exteriorWallHolderObj != null)
-        {
-            DestroyImmediate(exteriorWallHolderObj);
-        }
-
-        exteriorWallHolderObj = new GameObject("ExteriorWalls");
-        exteriorWallHolderObj.transform.SetParent(transform);
-
-        for (int i = 0; i < dimension; i++)
-        {
-            await BuildWallColumn(i, true, false);
-        }
-
-        for (int j = 0; j < dimension; j++)
-        {
-            await BuildWallRow(j, true, false);
+            await BuildWallRow(j, interior, exterior);
         }
     }
 
     // row of vertical walls
-    async Task BuildWallRow(int j, bool exterior, bool interior)
+    async Task BuildWallRow(int j, bool interior, bool exterior)
     {
         Vector3 offset = new Vector3(cellDistance / 2, 0, 0);
 
@@ -174,7 +165,7 @@ public class LevelBuilder : MonoBehaviour
     }
 
     // column of horizontal walls
-    async Task BuildWallColumn(int i, bool exterior, bool interior)
+    async Task BuildWallColumn(int i, bool interior, bool exterior)
     {
         Vector3 offset = new Vector3(0, cellDistance / 2, 0);
 
@@ -226,26 +217,8 @@ public class LevelBuilder : MonoBehaviour
         }
 
         await BuildSquareGrid();
-        await BuildExteriorWalls();
-        await BuildInteriorWalls();
+        await BuildWalls(true, true);
     }
-
-    //public void AssignCellTypes()
-    //{
-    //    if (cells == null)
-    //    {
-    //        Debug.Log("no valid grid present");
-    //        return;
-    //    }
-
-    //    for (int j = 0; j < dimension; j++)
-    //    {
-    //        for (int i = 0; i < dimension; i++)
-    //        {
-    //            cells[j, i].Type = DeriveCellType(j, i);
-    //        }
-    //    }
-    //}
 
     // we assume a strict cell type scheme -> the type can be derived based only on the cell position.
     private CellType DeriveCellType(int j, int i)
@@ -334,5 +307,22 @@ public class LevelBuilder : MonoBehaviour
     }
 
     #endregion
+
+    //public void AssignCellTypes()
+    //{
+    //    if (cells == null)
+    //    {
+    //        Debug.Log("no valid grid present");
+    //        return;
+    //    }
+
+    //    for (int j = 0; j < dimension; j++)
+    //    {
+    //        for (int i = 0; i < dimension; i++)
+    //        {
+    //            cells[j, i].Type = DeriveCellType(j, i);
+    //        }
+    //    }
+    //}
 }
 

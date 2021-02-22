@@ -7,8 +7,8 @@ using System.Linq;
 
 public class PrefabLoader : MonoBehaviour
 {
-    public string cellsFolderPath;
-    public string wallsFolderPath;
+    public string cellsFolderPath = "Prefabs/CellPrefabs";
+    public string wallsFolderPath = "Prefabs/WallPrefabs";
 
     public bool alwaysReload;
 

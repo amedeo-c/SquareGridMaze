@@ -5,20 +5,26 @@ using UnityEngine;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class MapExploring : MonoBehaviour
+public class LevelExplorer : MonoBehaviour
 {
+    [Tooltip("number of doors that is required for the level")]
     public int numWallsToOpen;
 
-    public bool isolatedPathsAllowed; // ...
+    [Tooltip("determines if it's possible to generate doors between unreachable cells")]
+    public bool isolatedPathsAllowed;
 
+    [Tooltip("true for play mode")]
     public bool deactivateOpenWalls;
 
+    [Tooltip("time interval between generation steps")]
     public float waitDuration;
 
+    [Tooltip("method used to generate the path in the level")]
     public TraverseMode traverseMode;
 
     [HideInInspector]
-    public int maxTries; // for the random traverse method, which is not guaranteed to successfully generate a level satisfying the requirements.
+    [Tooltip("number of attempts for random traversing method, before switching to direct")]
+    public int maxTries; // random traversing is not guaranteed to successfully generate a level satisfying the requirements.
 
     int openWalls;
 
@@ -60,9 +66,15 @@ public class MapExploring : MonoBehaviour
                 {
                     await OpenRemainingWalls2();
                 }
+
+                Debug.Assert(openWalls == numWallsToOpen);
+            }
+            else if(tries >= maxTries)
+            {
+                Debug.Log("switching to direct traversing mode");
+                DirectTraverseMethod();
             }
 
-            Debug.Assert(openWalls == numWallsToOpen);
         }
     }
 

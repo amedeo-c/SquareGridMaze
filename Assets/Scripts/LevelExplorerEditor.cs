@@ -4,8 +4,10 @@ using UnityEngine;
 
 using UnityEditor;
 
-[CustomEditor(typeof(MapExploring))]
-public class MapExploringEditor : Editor
+#if UNITY_EDITOR
+
+[CustomEditor(typeof(LevelExplorer))]
+public class LevelExplorerEditor : Editor
 {
     SerializedProperty maxTries;
 
@@ -16,7 +18,7 @@ public class MapExploringEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        MapExploring m = target as MapExploring;
+        LevelExplorer m = target as LevelExplorer;
 
         base.OnInspectorGUI();
         serializedObject.UpdateIfRequiredOrScript();
@@ -25,6 +27,8 @@ public class MapExploringEditor : Editor
         {
             EditorGUILayout.PropertyField(maxTries, new GUIContent("maxTries"));
         }
+
+        serializedObject.ApplyModifiedProperties();
 
         if (GUILayout.Button("clear"))
         {
@@ -44,7 +48,6 @@ public class MapExploringEditor : Editor
         //{
         //    serializedObject.ApplyModifiedProperties();
 
-        //    MapExploring m = target as MapExploring;
         //    m.DirectTraverseMethod();
         //}
 
@@ -57,4 +60,6 @@ public class MapExploringEditor : Editor
         //}
     }
 }
+
+#endif
 

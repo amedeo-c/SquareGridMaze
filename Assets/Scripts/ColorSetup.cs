@@ -14,9 +14,3 @@ public class ColorSetup : ScriptableObject
     [SerializeField]
     public Color closedWallColor;
 }
-
-[System.Serializable]
-public struct SerializableColorProperty
-{
-    // ...
-}

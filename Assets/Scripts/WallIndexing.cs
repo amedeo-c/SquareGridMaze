@@ -4,6 +4,7 @@ using UnityEngine;
 
 using System.Linq;
 
+// class used to retrive walls starting from the two cells the wall is separating
 public static class WallIndexing
 {
     public static int squareDimension;
@@ -47,18 +48,6 @@ public static class WallIndexing
             //Debug.Log(wallRow.ToString() + ", " + wallCol.ToString());
             return new WallIndexes(wallRow, wallCol);
         }
-    }
-
-    public static Wall WallInBetween(int rowA, int colA, int rowB, int colB)
-    {
-        if(Level.walls == null)
-        {
-            Debug.Log("level walls not present");
-            return null;
-        }
-
-        WallIndexes indexes = IndexesOfWallInBetween(rowA, colA, rowB, colB);
-        return Level.walls[indexes.row, indexes.col];
     }
 
     public static Wall WallInBetween(Cell cellA, Cell cellB)

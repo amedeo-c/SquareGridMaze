@@ -50,7 +50,7 @@ public class Level : MonoBehaviour
     private void Awake()
     {
         LevelBuilder builder = GetComponent<LevelBuilder>();
-        MapExploring explorer = GetComponent<MapExploring>();
+        LevelExplorer explorer = GetComponent<LevelExplorer>();
         Debug.Assert(builder != null && explorer != null);
 
         builder.waitDuration = 0f;

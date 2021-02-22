@@ -7,11 +7,11 @@ public class Cell : MonoBehaviour
     public int Row { get; set; }
     public int Col { get; set; }
 
+    [HideInInspector]
     public CellType type = CellType.Default;
 
-    public bool marked;
-
-    Wall[] adjacentWalls;
+    [HideInInspector]
+    public bool marked; // used to distinguish already traversed cells during level exploration
 
     public CellType Type
     {
@@ -31,17 +31,6 @@ public class Cell : MonoBehaviour
         set
         {
             marked = value;
-        }
-    }
-
-    public void SetConnections()
-    {
-        var directions = System.Enum.GetValues(typeof(Direction));
-        adjacentWalls = new Wall[directions.Length];
-
-        foreach(int d in directions)
-        {
-
         }
     }
 
@@ -94,13 +83,6 @@ public class Cell : MonoBehaviour
                 }
         }
     }
-    
-    public Wall AdjacentWall(Direction direction)
-    {
-        Cell otherCell = AdjacentCell(direction);
-
-        return WallIndexing.WallInBetween(Row, Col, otherCell.Row, otherCell.Col);
-    }
 
     public List<Cell> AdjacentCells()
     {
@@ -120,6 +102,7 @@ public class Cell : MonoBehaviour
 
     }
 
+    // available cells, during level exploration, are intended as adjacents cells that are still unmarked (not traversed yet)
     public List<Cell> AvailableCells()
     {
         List<Cell> cells = new List<Cell>();

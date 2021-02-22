@@ -4,6 +4,8 @@ using UnityEngine;
 
 using UnityEditor;
 
+#if UNITY_EDITOR
+
 [CustomEditor(typeof(LevelBuilder))]
 public class LevelBuilderEditor : Editor
 {
@@ -67,7 +69,7 @@ public class LevelBuilderEditor : Editor
             serializedObject.ApplyModifiedProperties();
 
             LevelBuilder l = target as LevelBuilder;
-            l.BuildExteriorWalls();
+            l.BuildWalls(false, true);
         }
 
         if (GUILayout.Button("build internal walls"))
@@ -75,7 +77,9 @@ public class LevelBuilderEditor : Editor
             serializedObject.ApplyModifiedProperties();
 
             LevelBuilder l = target as LevelBuilder;
-            l.BuildInteriorWalls();
+            l.BuildWalls(true, false);
         }
     }
 }
+
+#endif
