@@ -7,7 +7,7 @@ using UnityEditor;
 public class Level : MonoBehaviour
 {
     public static int Dimension;
-    public static int NumWalls;
+    public static int NumWalls;  // interior
 
     public static Cell[,] cells;
     public static Wall[,] walls;
