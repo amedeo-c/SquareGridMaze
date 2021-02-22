@@ -15,7 +15,8 @@ public static class LevelColors
     {
         if(setup == null)
         {
-            setup = Resources.Load<ColorSetup>("BaseColorSetup");
+            ColorSetup setupScriptable = Resources.Load<ColorSetup>("BaseColorSetup");
+            setup = ScriptableObject.Instantiate(setupScriptable);
         }
 
         return setup.cellColors[(int)type];
