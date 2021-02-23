@@ -10,7 +10,7 @@ public class Wall : MonoBehaviour
 
     public static bool deactivateOnOpen;
 
-    //Animation openAnimation;
+    bool highlighted;
 
     public bool Open
     {
@@ -34,6 +34,30 @@ public class Wall : MonoBehaviour
             }
 
             open = value;
+        }
+    }
+
+    public bool Highlighted
+    {
+        set
+        {
+            highlighted = value;
+
+            if (highlighted)
+            {
+                GetComponent<SpriteRenderer>().color = Color.blue;
+            }
+            else
+            {
+                if (open)
+                {
+                    GetComponent<SpriteRenderer>().color = Color.white;
+                }
+                else
+                {
+                    GetComponent<SpriteRenderer>().color = Color.black;
+                }
+            }
         }
     }
 }

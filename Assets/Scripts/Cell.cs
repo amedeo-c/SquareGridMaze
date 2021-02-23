@@ -145,6 +145,7 @@ public class Cell : MonoBehaviour
         {
             if (IsReachableFrom(c))
             {
+                WallIndexing.WallInBetween(c, sourceCell).Highlighted = true;
                 return true;
             }
         }
@@ -155,6 +156,7 @@ public class Cell : MonoBehaviour
     private void OnMouseUpAsButton()
     {
         Level.DemarkAllCells();
+        Level.RemoveWallHighlights();
 
         Debug.Log("checking...");
 

@@ -64,7 +64,17 @@ public class Level : MonoBehaviour
                 w.Open = false;
             }
         }
+    }
 
+    public static void RemoveWallHighlights()
+    {
+        foreach (Wall w in walls)
+        {
+            if (w != null)
+            {
+                w.Highlighted = false;
+            }
+        }
     }
 
     private void Awake()
