@@ -299,27 +299,6 @@ public class LevelExplorer : MonoBehaviour
         }
     }
 
-    void CloseAllWalls()
-    {
-        foreach (Wall w in Level.walls)
-        {
-            if (w != null)
-            {
-                w.Open = false;
-            }
-        }
-
-        openWalls = 0;
-    }
-
-    void DemarkAllCells()
-    {
-        foreach (Cell c in Level.cells)
-        {
-            c.Marked = false;
-        }
-    }
-
     bool Prepare()
     {
         if(Level.cells == null || Level.walls == null)
@@ -329,8 +308,9 @@ public class LevelExplorer : MonoBehaviour
         }
 
         Wall.deactivateOnOpen = deactivateOpenWalls;
-        DemarkAllCells();
-        CloseAllWalls();
+        Level.DemarkAllCells();
+        Level.CloseAllWalls();
+        openWalls = 0;
 
         return true;
     }

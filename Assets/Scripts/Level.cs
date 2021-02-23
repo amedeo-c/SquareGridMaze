@@ -47,6 +47,26 @@ public class Level : MonoBehaviour
         }
     }
 
+    public static void DemarkAllCells()
+    {
+        foreach(Cell c in cells)
+        {
+            c.Marked = false;
+        }
+    }
+
+    public static void CloseAllWalls()
+    {
+        foreach(Wall w in walls)
+        {
+            if(w != null)
+            {
+                w.Open = false;
+            }
+        }
+
+    }
+
     private void Awake()
     {
         LevelBuilder builder = GetComponent<LevelBuilder>();

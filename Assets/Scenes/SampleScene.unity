@@ -217,9 +217,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Level
       objectReference: {fileID: 0}
+    - target: {fileID: 1403799734411798124, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
+      propertyPath: defaultCell
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798125, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: maxTries
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1403799734411798125, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
+      propertyPath: traverseMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798126, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: m_RootOrder

@@ -119,6 +119,47 @@ public class Cell : MonoBehaviour
 
         return cells;
     }
+
+    public IEnumerable<Cell> ReachableCells()
+    {
+        foreach(int direction in System.Enum.GetValues(typeof(Direction)))
+        {
+            Cell adjacentCell = AdjacentCell((Direction)direction);
+            if(adjacentCell != null && !adjacentCell.Marked && WallIndexing.WallInBetween(this, adjacentCell).Open)
+            {
+                yield return adjacentCell;
+            }
+        }
+    }
+
+    public bool IsReachableFrom(Cell sourceCell)
+    {
+        if(sourceCell == this)
+        {
+            return true;
+        }
+
+        sourceCell.Marked = true;
+
+        foreach(Cell c in sourceCell.ReachableCells())
+        {
+            if (IsReachableFrom(c))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void OnMouseUpAsButton()
+    {
+        Level.DemarkAllCells();
+
+        Debug.Log("checking...");
+
+        Debug.Log(IsReachableFrom(Level.EnterCell));
+    }
 }
 
 public enum Direction
