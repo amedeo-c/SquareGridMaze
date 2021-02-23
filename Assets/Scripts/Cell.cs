@@ -84,6 +84,7 @@ public class Cell : MonoBehaviour
         }
     }
 
+    // all adjacent cells, regardless of marks and walls. cells on the grid perimeter will have some null adjacent cells.
     public List<Cell> AdjacentCells()
     {
         List<Cell> cells = new List<Cell>();
@@ -120,6 +121,7 @@ public class Cell : MonoBehaviour
         return cells;
     }
 
+    // adjacent cells that are not marked yet and can be reached through an open door
     public IEnumerable<Cell> ReachableCells()
     {
         foreach(int direction in System.Enum.GetValues(typeof(Direction)))
@@ -132,6 +134,7 @@ public class Cell : MonoBehaviour
         }
     }
 
+    // recursive method for checking grid paths.
     public bool IsReachableFrom(Cell sourceCell)
     {
         if(sourceCell == this)
@@ -157,8 +160,6 @@ public class Cell : MonoBehaviour
     {
         Level.DemarkAllCells();
         Level.RemoveWallHighlights();
-
-        Debug.Log("checking...");
 
         Debug.Log(IsReachableFrom(Level.EnterCell));
     }
