@@ -159,7 +159,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -176,7 +176,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 2.76
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -240,7 +240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798124, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: defaultCell
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798125, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: maxTries
@@ -293,6 +293,10 @@ PrefabInstance:
     - target: {fileID: 1403799734411798126, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1403799734411798127, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
+      propertyPath: dimension
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798127, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: waitDuration
