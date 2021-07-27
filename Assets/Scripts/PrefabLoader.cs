@@ -16,11 +16,15 @@ public class PrefabLoader : MonoBehaviour
     [Tooltip("useful in edit mode to apply eventual changes")]
     public bool alwaysReload;
 
+    public bool defaultCell;
+
     List<GameObject[]> cellPrefabs;
 
     GameObject wallPrefab;
 
-    // for both cells and walls prefabs, we load all the necessary resources once and for all and then 
+    GameObject defaultCellPrefab;
+
+    // for both cells and walls prefabs, we load all the necessary resources once and for all
 
     // we assume that for each cell type there exists a resources folder containing all the possible type variants
     void LoadCellPrefabs()
@@ -41,6 +45,13 @@ public class PrefabLoader : MonoBehaviour
         }
     }
 
+    void LoadDefaultCellPrefab()
+    {
+        defaultCellPrefab = Resources.Load<GameObject>("Prefabs/CellPrefabs/Cell");
+        Debug.Assert(defaultCellPrefab != null);
+        Debug.Assert(defaultCellPrefab.GetComponent<Cell>() != null);
+    }
+
     void LoadWallPrefab() // only one at the moment
     {
         string resourcePath = wallsFolderPath + "/Wall";
@@ -51,13 +62,25 @@ public class PrefabLoader : MonoBehaviour
 
     public GameObject GetRandomCellPrefab(CellType type)
     {
-        if(cellPrefabs == null || alwaysReload)
+        if (defaultCell)
         {
-            LoadCellPrefabs();
-        }
+            if(defaultCellPrefab == null)
+            {
+                LoadDefaultCellPrefab();
+            }
 
-        GameObject[] typePrefabs = cellPrefabs[(int)type];
-        return typePrefabs[Random.Range(0, typePrefabs.Length)];
+            return defaultCellPrefab;
+        }
+        else
+        {
+            if (cellPrefabs == null || alwaysReload)
+            {
+                LoadCellPrefabs();
+            }
+
+            GameObject[] typePrefabs = cellPrefabs[(int)type];
+            return typePrefabs[Random.Range(0, typePrefabs.Length)];
+        }
     }
 
     public GameObject GetWallPrefab()

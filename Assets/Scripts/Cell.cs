@@ -7,30 +7,13 @@ public class Cell : MonoBehaviour
     public int Row { get; set; }
     public int Col { get; set; }
 
-    [HideInInspector]
-    public CellType type = CellType.Default;
-
-    [HideInInspector]
-    public bool marked; // used to distinguish already traversed cells during level exploration
+    CellType type = CellType.Default;
 
     public CellType Type
     {
         set
         {
             type = value;
-            //GetComponent<SpriteRenderer>().color = LevelColors.GetCellColor(type);
-        }
-    }
-
-    public bool Marked
-    {
-        get
-        {
-            return marked;
-        }
-        set
-        {
-            marked = value;
         }
     }
 
@@ -84,6 +67,7 @@ public class Cell : MonoBehaviour
         }
     }
 
+    // all adjacent cells, regardless of marks and walls. cells on the grid perimeter will have some null adjacent cells.
     public List<Cell> AdjacentCells()
     {
         List<Cell> cells = new List<Cell>();
@@ -99,25 +83,14 @@ public class Cell : MonoBehaviour
         }
 
         return cells;
-
     }
 
-    // available cells, during level exploration, are intended as adjacents cells that are still unmarked (not traversed yet)
-    public List<Cell> AvailableCells()
+    private void OnMouseUpAsButton()
     {
-        List<Cell> cells = new List<Cell>();
-        var directions = System.Enum.GetValues(typeof(Direction));
+        LevelExplorer.ResetMarked();
+        Level.RemoveWallHighlights();
 
-        foreach (int direction in directions)
-        {
-            Cell adjacentCell = AdjacentCell((Direction)direction);
-            if (adjacentCell != null && !adjacentCell.Marked)
-            {
-                cells.Add(adjacentCell);
-            }
-        }
-
-        return cells;
+        Debug.Log(LevelExplorer.IsReachableFrom(Level.EnterCell, this));
     }
 }
 

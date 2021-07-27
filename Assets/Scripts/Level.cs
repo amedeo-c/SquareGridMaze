@@ -12,6 +12,8 @@ public class Level : MonoBehaviour
     public static Cell[,] cells;
     public static Wall[,] walls;
 
+    #region Cell Accessors
+
     // because of the assumed strict cell type scheme, "special" cells position is fixed and known a priori.
 
     public static Cell EnterCell
@@ -47,7 +49,31 @@ public class Level : MonoBehaviour
         }
     }
 
-    private void Awake()
+    #endregion
+
+    public static void CloseAllWalls()
+    {
+        foreach(Wall w in walls)
+        {
+            if(w != null)
+            {
+                w.Open = false;
+            }
+        }
+    }
+
+    public static void RemoveWallHighlights()
+    {
+        foreach (Wall w in walls)
+        {
+            if (w != null)
+            {
+                w.Highlighted = false;
+            }
+        }
+    }
+
+    private void Start()
     {
         LevelBuilder builder = GetComponent<LevelBuilder>();
         LevelExplorer explorer = GetComponent<LevelExplorer>();

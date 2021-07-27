@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 public class Wall : MonoBehaviour
 {
-    bool open;
+    protected bool open;
 
     public static bool deactivateOnOpen;
 
-    //Animation openAnimation;
+    protected bool highlighted;
 
     public bool Open
     {
@@ -30,10 +30,36 @@ public class Wall : MonoBehaviour
                 {
                     transform.Rotate(Vector3.forward, 90.0f);
                 }
-                GetComponent<SpriteRenderer>().color = LevelColors.GetWallColor(value);
+
+                Color wallColor = value ? Color.white : Color.black;
+                GetComponent<SpriteRenderer>().color = wallColor;
             }
 
             open = value;
+        }
+    }
+
+    public bool Highlighted
+    {
+        set
+        {
+            highlighted = value;
+
+            if (highlighted)
+            {
+                GetComponent<SpriteRenderer>().color = Color.blue;
+            }
+            else
+            {
+                if (open)
+                {
+                    GetComponent<SpriteRenderer>().color = Color.white;
+                }
+                else
+                {
+                    GetComponent<SpriteRenderer>().color = Color.black;
+                }
+            }
         }
     }
 }
