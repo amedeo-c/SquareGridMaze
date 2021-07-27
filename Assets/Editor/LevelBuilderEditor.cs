@@ -24,8 +24,6 @@ public class LevelBuilderEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        //base.OnInspectorGUI();
-
         serializedObject.UpdateIfRequiredOrScript();
 
         EditorGUILayout.PropertyField(dimension, new GUIContent("dimension"));

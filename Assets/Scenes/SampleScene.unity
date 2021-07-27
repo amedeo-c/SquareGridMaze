@@ -206,6 +206,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2061984988 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1403799734411798112, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
+  m_PrefabInstance: {fileID: 1403799734726764662}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2061984989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061984988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c58c4d94a3efc446a9e645f40f499ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cellsFolderPath: Prefabs/CellPrefabs
+  wallsFolderPath: Prefabs/WallPrefabs
+  alwaysReload: 0
+  defaultCell: 0
 --- !u!1001 &1403799734726764662
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -227,7 +248,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798125, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: traverseMode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1403799734411798126, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
       propertyPath: m_RootOrder
@@ -277,5 +298,6 @@ PrefabInstance:
       propertyPath: waitDuration
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1403799734411798124, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 0d239e1e1bf694644a97448c1ce42f16, type: 3}

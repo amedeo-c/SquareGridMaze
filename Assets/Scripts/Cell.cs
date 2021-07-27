@@ -7,30 +7,13 @@ public class Cell : MonoBehaviour
     public int Row { get; set; }
     public int Col { get; set; }
 
-    [HideInInspector]
-    public CellType type = CellType.Default;
-
-    [HideInInspector]
-    public bool marked; // used to distinguish already traversed cells during level exploration
+    CellType type = CellType.Default;
 
     public CellType Type
     {
         set
         {
             type = value;
-            //GetComponent<SpriteRenderer>().color = LevelColors.GetCellColor(type);
-        }
-    }
-
-    public bool Marked
-    {
-        get
-        {
-            return marked;
-        }
-        set
-        {
-            marked = value;
         }
     }
 
@@ -100,68 +83,14 @@ public class Cell : MonoBehaviour
         }
 
         return cells;
-
-    }
-
-    // available cells, during level exploration, are intended as adjacents cells that are still unmarked (not traversed yet)
-    public List<Cell> AvailableCells()
-    {
-        List<Cell> cells = new List<Cell>();
-        var directions = System.Enum.GetValues(typeof(Direction));
-
-        foreach (int direction in directions)
-        {
-            Cell adjacentCell = AdjacentCell((Direction)direction);
-            if (adjacentCell != null && !adjacentCell.Marked)
-            {
-                cells.Add(adjacentCell);
-            }
-        }
-
-        return cells;
-    }
-
-    // adjacent cells that are not marked yet and can be reached through an open door
-    public IEnumerable<Cell> ReachableCells()
-    {
-        foreach(int direction in System.Enum.GetValues(typeof(Direction)))
-        {
-            Cell adjacentCell = AdjacentCell((Direction)direction);
-            if(adjacentCell != null && !adjacentCell.Marked && WallIndexing.WallInBetween(this, adjacentCell).Open)
-            {
-                yield return adjacentCell;
-            }
-        }
-    }
-
-    // recursive method for checking grid paths.
-    public bool IsReachableFrom(Cell sourceCell)
-    {
-        if(sourceCell == this)
-        {
-            return true;
-        }
-
-        sourceCell.Marked = true;
-
-        foreach(Cell c in sourceCell.ReachableCells())
-        {
-            if (IsReachableFrom(c))
-            {
-                WallIndexing.WallInBetween(c, sourceCell).Highlighted = true;
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void OnMouseUpAsButton()
     {
-        Level.DemarkAllCells();
+        LevelExplorer.ResetMarked();
         Level.RemoveWallHighlights();
 
-        Debug.Log(IsReachableFrom(Level.EnterCell));
+        Debug.Log(LevelExplorer.IsReachableFrom(Level.EnterCell, this));
     }
 }
 

@@ -31,6 +31,19 @@ public class LevelExplorer : MonoBehaviour
     Cell currentCell;
     Cell previousCell;
 
+    public static Dictionary<Cell, bool> marked = new Dictionary<Cell, bool>();
+
+    public static void ResetMarked()
+    {
+        marked.Clear();
+        foreach(var cell in Level.cells)
+        {
+            marked[cell] = false;
+        }
+    }
+
+    #region Traversal
+
     public async Task RandomTraverseMethod()
     {
         bool ready = Prepare();
@@ -69,7 +82,7 @@ public class LevelExplorer : MonoBehaviour
 
                 Debug.Assert(openWalls == numWallsToOpen);
             }
-            else if(tries >= maxTries)
+            else if (tries >= maxTries)
             {
                 Debug.Log("switching to direct traversing mode");
                 DirectTraverseMethod();
@@ -84,17 +97,17 @@ public class LevelExplorer : MonoBehaviour
         currentCell = sourceCell;
         previousCell = sourceCell;
 
-        while(currentCell != targetCell && openWalls < numWallsToOpen)
+        while (currentCell != targetCell && openWalls < numWallsToOpen)
         {
             var availableCells = currentCell.AdjacentCells();
             availableCells.Remove(previousCell);
 
-            if(availableCells.Count > 0)
+            if (availableCells.Count > 0)
             {
                 Cell nextCell = availableCells[Random.Range(0, availableCells.Count)];
                 ChangeCell(nextCell, markCells);
 
-                if ((stopOnMarked && currentCell.Marked) || openWalls >= numWallsToOpen)
+                if ((stopOnMarked && marked[currentCell]) || openWalls >= numWallsToOpen)
                 {
                     break;
                 }
@@ -108,7 +121,7 @@ public class LevelExplorer : MonoBehaviour
             }
         }
 
-        currentCell.Marked = true;
+        marked[currentCell] = true;
     }
 
     public async Task DirectTraverseMethod()
@@ -153,7 +166,7 @@ public class LevelExplorer : MonoBehaviour
         int currentRow = sourceRow;
         int currentCol = sourceCol;
 
-        while (!(currentRow == targetRow && currentCol == targetCol) && !Level.cells[currentRow, currentCol].Marked)
+        while (!(currentRow == targetRow && currentCol == targetCol) && !(marked[Level.cells[currentRow, currentCol]]))
         {
             if (currentRow == targetRow)
             {
@@ -182,7 +195,7 @@ public class LevelExplorer : MonoBehaviour
             await Task.Delay((int)(waitDuration * 1000f));
         }
 
-        Level.cells[currentRow, currentCol].Marked = true;
+        marked[Level.cells[currentRow, currentCol]] = true;
     }
 
     // one step move
@@ -201,7 +214,7 @@ public class LevelExplorer : MonoBehaviour
 
         if (mark)
         {
-            previousCell.Marked = true;
+            marked[previousCell] = true;
         }
     }
 
@@ -217,9 +230,13 @@ public class LevelExplorer : MonoBehaviour
 
         if (mark)
         {
-            Level.cells[currentRow, currentCol].Marked = true;
+            marked[Level.cells[currentRow, currentCol]] = true;
         }
     }
+
+    #endregion
+
+    #region Open Walls
 
     void OpenMandatoryWalls()
     {
@@ -278,13 +295,12 @@ public class LevelExplorer : MonoBehaviour
     }
 
     // leftover walls to be opened are opened using random traverses starting from marked cells
-    // 
     async Task OpenRemainingWalls2()
     {
         List<Cell> markedCells = new List<Cell>();
         foreach(Cell c in Level.cells)
         {
-            if (c.Marked)
+            if (marked[c])
             {
                 markedCells.Add(c);
             }
@@ -299,6 +315,43 @@ public class LevelExplorer : MonoBehaviour
         }
     }
 
+    #endregion
+
+    // adjacent cells that are not marked yet and can be reached through an open door
+    static IEnumerable<Cell> ReachableCells(Cell current)
+    {
+        foreach (int direction in System.Enum.GetValues(typeof(Direction)))
+        {
+            Cell adjacentCell = current.AdjacentCell((Direction)direction);
+            if (adjacentCell != null && !marked[adjacentCell] && WallIndexing.WallInBetween(current, adjacentCell).Open)
+            {
+                yield return adjacentCell;
+            }
+        }
+    }
+
+    // recursive method for checking grid paths.
+    public static bool IsReachableFrom(Cell sourceCell, Cell destinationCell)
+    {
+        if (sourceCell == destinationCell)
+        {
+            return true;
+        }
+
+        marked[sourceCell] = true;
+
+        foreach (Cell c in ReachableCells(sourceCell))
+        {
+            if (IsReachableFrom(c, destinationCell))
+            {
+                WallIndexing.WallInBetween(c, sourceCell).Highlighted = true;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool Prepare()
     {
         if(Level.cells == null || Level.walls == null)
@@ -308,7 +361,8 @@ public class LevelExplorer : MonoBehaviour
         }
 
         Wall.deactivateOnOpen = deactivateOpenWalls;
-        Level.DemarkAllCells();
+        //Level.DemarkAllCells();
+        ResetMarked();
         Level.CloseAllWalls();
         openWalls = 0;
 

@@ -20,12 +20,12 @@ public class LevelBuilder : MonoBehaviour
 
     Vector2 firstCellPosition;
 
-    // used as parents in the hierarchy (for cleaning purposes)
+    // used as parents in the hierarchy
     GameObject cellHolderObj;
     GameObject interiorWallHolderObj;
     GameObject exteriorWallHolderObj;
 
-    PrefabLoader prefabLoader;
+    public PrefabLoader prefabLoader;
 
     Cell[,] cells;
     Wall[,] interiorWalls;
@@ -69,8 +69,14 @@ public class LevelBuilder : MonoBehaviour
     public Cell BuildCell(int row, int column, float distance)
     {
         CellType type = DeriveCellType(row, column);
-        GameObject cellPrefab = prefabLoader.GetRandomCellPrefab(type);
 
+        GameObject GetCellPrefab()
+        {
+            GameObject cellPrefab = prefabLoader.GetRandomCellPrefab(type);
+            return cellPrefab;
+        }
+
+        GameObject cellPrefab = GetCellPrefab();
         GameObject newCellObj = Instantiate(cellPrefab);
 
         newCellObj.transform.position = firstCellPosition + new Vector2(column * distance, row * distance);
@@ -87,12 +93,14 @@ public class LevelBuilder : MonoBehaviour
         return newCell;
     }
 
+    
+
     #endregion
 
     #region WallBuilding
+
     // for indexing easiness, creation of vertical walls and horizontal walls is separated.
     // moreover, in practice we also separate the creation of interior and exterior walls, but this is not a system requirement.
-
     public async Task BuildWalls(bool interior, bool exterior)
     {
         if (cellHolderObj == null || cells == null)
@@ -308,21 +316,5 @@ public class LevelBuilder : MonoBehaviour
 
     #endregion
 
-    //public void AssignCellTypes()
-    //{
-    //    if (cells == null)
-    //    {
-    //        Debug.Log("no valid grid present");
-    //        return;
-    //    }
-
-    //    for (int j = 0; j < dimension; j++)
-    //    {
-    //        for (int i = 0; i < dimension; i++)
-    //        {
-    //            cells[j, i].Type = DeriveCellType(j, i);
-    //        }
-    //    }
-    //}
 }
 

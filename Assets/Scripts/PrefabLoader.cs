@@ -24,7 +24,7 @@ public class PrefabLoader : MonoBehaviour
 
     GameObject defaultCellPrefab;
 
-    // for both cells and walls prefabs, we load all the necessary resources once and for all and then 
+    // for both cells and walls prefabs, we load all the necessary resources once and for all
 
     // we assume that for each cell type there exists a resources folder containing all the possible type variants
     void LoadCellPrefabs()
