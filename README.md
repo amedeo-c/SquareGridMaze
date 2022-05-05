@@ -2,7 +2,7 @@
 
 Square grid programmatic generation and exploration.
 
-A system for the procedural generation of levels of the form of square grids, composed of rooms and walls, is provided. 
+We propose a system for the procedural generation of levels in the form of square grids in Unity. Grids are schematically composed by rooms and walls. 
 Then, we present different methods for exploring the generated grid and, in turn, generating paths connecting different rooms.
 More generally, multiple algorithms for traversing a b-idmensional array are discussed.
 
